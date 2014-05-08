@@ -4,7 +4,7 @@ using namespace std;
 class Pin {
 public:
 
-	enum mode {
+	enum Mode {
 		OUT,
 		IN
 	};
@@ -12,13 +12,12 @@ public:
 	Pin(int n);
 	bool exportPin();
 	bool unexportPin();
-	bool setMode(mode m);
+	bool setMode(Mode m);
 	bool set(bool s);
-	bool get()
+	bool get();
 	int getNumber();
 
 private:
 	int gpionum;
 	string gpiostr();
 };
-
