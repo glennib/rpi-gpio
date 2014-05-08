@@ -106,5 +106,6 @@ int Pin::getNumber() {
 }
 
 string Pin::gpiostr() {
-	return to_string(gpionum);
+	string s = to_string(gpionum);
+	return s;
 }

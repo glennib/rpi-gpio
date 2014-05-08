@@ -5,7 +5,7 @@ INCPATH		= ./include
 OBJPATH		= ./obj
 INSTPATH	= ./bin
 CC		= g++
-CFLAGS		= -g -Wall -I$(INCPATH)
+CFLAGS		= -std=c++11 -g -Wall -I$(INCPATH)
 
 
 # TARGETS
