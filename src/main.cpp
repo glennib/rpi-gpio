@@ -4,41 +4,74 @@
 #include <stdlib.h>
 #include "Pin.h"
 #include <unistd.h>
+#include <signal.h>
 
 using namespace std;
 
+void sig_handler(int sig);
+
+bool ctrlCPressed = false;
+
 int main() {
+	struct sigaction sigStruct;
+	sigStruct.sa_handler = sig_handler;
+	sigStruct.sa_flags = 0;
+	sigemptyset(&sigStruct.sa_mask);
+
+	if (sigaction(SIGINT, &sigStruct, NULL) == -1) {
+		cout << "Problem with sigaction" << endl;
+		exit(1);
+	}
+
 	bool inputstate;
-	Pin* pin0 = new Pin(4);
-	Pin* pin1 = new Pin(7);
+	Pin* outputPin = new Pin(4);
+	Pin* inputPin = new Pin(7);
 	
-	pin0->exportPin();
-	pin1->exportPin();
+	outputPin->exportPin();
+	inputPin->exportPin();
 	
 	cout << "Pins exported" << endl;
 
-	pin0->setMode(Pin::Mode::OUT);
-	pin1->setMode(Pin::Mode::IN);
+	outputPin->setMode(Pin::Mode::OUT);
+	inputPin->setMode(Pin::Mode::IN);
 
 	cout << "Set Pin modes" << endl;
 	
-	int c = 0;
-	while(c++ < 10) {
-		usleep(500000);
-		inputstate = pin1->get();
+	while(true) {
+		inputstate = inputPin->get();
 		
-		if (inputstate) {
-			cout << "Input is pressed" << endl;
-		}
-		else {
-			cout << "Input is released" << endl;
-		}
+		//if (inputstate) {
+		//	cout << "Input is pressed" << endl;
+		//}
+		//else {
+		//	cout << "Input is released" << endl;
+		//}
 		
-		pin0->set(inputstate);
+		outputPin->set(inputstate);
+
+		if (ctrlCPressed) {
+			cout << "Ctrl + C pressed" << endl;
+			cout << "Unexporting pins" << endl;
+			
+			outputPin->unexportPin();
+			inputPin->unexportPin();
+			
+			cout << "Deallocating pin objects" << endl;
+			
+			delete inputPin;
+			inputPin = 0;
+			delete outputPin;
+			outputPin = 0;
+			break;
+		}	
 	}
 	
-	pin0->unexportPin();
-	pin1->unexportPin();
+	cout << "Exiting..." << endl;
 
 	return 0;
+}
+
+void sig_handler(int sig) {
+	write(0, "nCtrl^C pressed in sig handlern", 32);
+	ctrlCPressed = true;
 }
