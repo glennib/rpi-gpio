@@ -10,6 +10,8 @@ public:
 	};
 
 	Pin(int n);
+	Pin(int n, Mode m);
+	~Pin();
 	bool exportPin();
 	bool unexportPin();
 	bool setMode(Mode m);

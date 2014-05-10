@@ -12,11 +12,21 @@ Pin::Pin(int n) {
 	_gpionum = n;
 }
 
+Pin::Pin(int n, Mode m) {
+	_gpionum = n;
+	setMode(m);
+}
+
+Pin::~Pin() {
+	set(false);
+	unexportPin();
+}
+
 bool Pin::exportPin() {
 	string exportString = GPIO_PATH "export";
 	ofstream exportgpio(exportString.c_str());
 	if (exportgpio < 0) {
-		cout << "OPERATION FAILED: Unable to export GPIO" << endl;
+		throw "OPERATION FAILED: Unable to export GPIO " + gpiostr();
 		return false;
 	}
 
@@ -30,7 +40,7 @@ bool Pin::unexportPin() {
 	string unexportString = GPIO_PATH "unexport";
 	ofstream unexportgpio(unexportString.c_str());
 	if (unexportgpio < 0) {
-		cout << "OPERATION FAILED: Unable to unexport GPIO" << endl;
+		throw "OPERATION FAILED: Unable to unexport GPIO" + gpiostr();
 		return false;
 	}
 	
@@ -43,7 +53,7 @@ bool Pin::setMode(Mode m) {
 	string setdirString = GPIO_PATH "gpio" + gpiostr() + "/direction";
 	ofstream setdirgpio(setdirString.c_str());
 	if (setdirgpio < 0) {
-		cout << "OPERATION FAILED: Unable to set direction" << endl;
+		throw "OPERATION FAILED: Unable to set direction on GPIO " + gpiostr();
 		return false;
 	}
 	
@@ -55,7 +65,7 @@ bool Pin::setMode(Mode m) {
 		dir = "in";
 	}
 	else {
-		cout << "OPERATION FAILED: Unable to set direction - wrong mode" << endl;
+		throw "OPERATION FAILED: Unable to set direction (wrong mode) on GPIO " + gpiostr();		
 		return false;
 	}
 	
@@ -68,7 +78,7 @@ bool Pin::set(bool s) {
 	string setvalString = GPIO_PATH "gpio" + gpiostr() + "/value";
 	ofstream setvalgpio(setvalString.c_str());
 	if (setvalgpio < 0) {
-		cout << "OPERATION FAILED: Unable to set the value of pin" << endl;
+		throw "OPERATION FAILED: Unable to set the value of GPIO " + gpiostr();
 		return false;
 	}
 	
@@ -117,7 +127,7 @@ bool Pin::get() {
 	string getvalString = GPIO_PATH "gpio" + gpiostr() + "/value";
 	ifstream getvalgpio(getvalString.c_str());
 	if (getvalgpio < 0) {
-		throw "OPERATION FAILED: Unable to read value of pin";
+		throw "OPERATION FAILED: Unable to read value of GPIO " + gpiostr();
 	}
 	
 	string val = "";
@@ -128,7 +138,7 @@ bool Pin::get() {
 	else if (val == "1")
 		return true;
 	else
-		throw "OPERATION FAILED: Strange value read from pin " + gpiostr() + ": " + val;
+		throw "OPERATION FAILED: Strange value read from GPIO " + gpiostr() + ": " + val;
 }
 
 int Pin::getNumber() {
