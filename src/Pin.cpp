@@ -9,7 +9,7 @@
 using namespace std;
 
 Pin::Pin(int n) {
-	gpionum = n;
+	_gpionum = n;
 }
 
 bool Pin::exportPin() {
@@ -20,7 +20,7 @@ bool Pin::exportPin() {
 		return false;
 	}
 
-	exportgpio << gpionum;
+	exportgpio << _gpionum;
 	exportgpio.close();
 	
 	return true;
@@ -34,7 +34,7 @@ bool Pin::unexportPin() {
 		return false;
 	}
 	
-	unexportgpio << gpionum;
+	unexportgpio << _gpionum;
 	unexportgpio.close();
 	return true;
 }
@@ -83,6 +83,36 @@ bool Pin::set(bool s) {
 	return true;
 }
 
+bool Pin::set(int dutyPeriod) {
+	if (!_pwm) {
+		if (dutyPeriod > 0) {
+			set(true);
+		}
+		else {
+			set(false);
+		}
+		return true;
+	}
+	if (dutyPeriod <= _period) {
+		if (dutyPeriod >= 0) {
+			_duty = dutyPeriod;
+		}
+		else {
+			_duty = 0;
+		}
+	}
+	else {
+		_duty = _period;
+	}
+	return true;
+}
+
+bool Pin::set(float duty) {
+	int dutyPeriod;
+	dutyPeriod = int(duty * _period);
+	return set(dutyPeriod);
+}
+
 bool Pin::get() {
 	string getvalString = GPIO_PATH "gpio" + gpiostr() + "/value";
 	ifstream getvalgpio(getvalString.c_str());
@@ -102,10 +132,16 @@ bool Pin::get() {
 }
 
 int Pin::getNumber() {
-	return gpionum;
+	return _gpionum;
+}
+
+bool Pin::activatePwm(int period) {
+	_pwm = true;
+	_period = period;
+	return true;
 }
 
 string Pin::gpiostr() {
-	string s = to_string(gpionum);
+	string s = to_string(_gpionum);
 	return s;
 }

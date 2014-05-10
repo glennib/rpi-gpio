@@ -13,7 +13,7 @@ CFLAGS		= -std=c++11 -g -Wall -I$(INCPATH)
 all: getobj app putobj
 
 app: main.o Pin.o
-	$(CC) $(CFLAGS) -o $(INSTPATH)/app main.o Pin.o
+	$(CC) $(CFLAGS) -o $(INSTPATH)/light.app main.o Pin.o
 
 main.o: $(SRCPATH)/main.cpp $(INCPATH)/Pin.h
 	$(CC) $(CFLAGS) -c $(SRCPATH)/main.cpp
